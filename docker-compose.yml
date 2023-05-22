@@ -79,9 +79,10 @@ services:
       - logstash
 
   flask:
-    build: ./flask
+    build: .
     depends_on:
       - server-web
+      - postgres
     networks:
       - elk
 
