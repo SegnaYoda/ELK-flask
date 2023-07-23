@@ -1,16 +1,34 @@
-FROM alpine:3.7
+# Dockerfile for Flask app
 
-ADD requirements.txt ./app /home/app/
+# Указываем базовый образ для Python
+FROM python:3.10
 
-WORKDIR /home/app/
+# Устанавливаем зависимости для работы с PostgreSQL
+ENV PYTHONDONTWRITEBYTECODE=1
 
-RUN apk add --no-cache postgresql-dev gcc python3 python3-dev musl-dev && \
-    python3 -m ensurepip && \
-    rm -r /usr/lib/python*/ensurepip && \
-    pip3 install --upgrade pip setuptools && \
-    rm -r /root/.cache && \
-    pip3 install -r requirements.txt
+RUN apt-get update \
+    && apt-get install -y libpq-dev gcc musl-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
+# Установка poetry
+RUN pip install poetry
+
+# Создание директории приложения внутри контейнера
+WORKDIR /app/
+
+# Копирование файлов с зависимостями в контейнер
+COPY pyproject.toml poetry.lock . /app/
+
+# Установка зависимостей из poetry.lock
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-root
+
+# Копирование исходного кода приложения в контейнер
+COPY /app /app
+
+# Открытие порта 5000 в контейнере
 EXPOSE 5000
 
-ENTRYPOINT ["python3","-m","flask","run", "--host=0.0.0.0"]
+# Запуск приложения Flask
+ENTRYPOINT ["python3","-m","flask","run", "--host=0.0.0.0", "--port=5000"]
