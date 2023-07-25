@@ -1,38 +1,34 @@
 import json
 import elasticapm
-from flask import request, current_app
+from elasticapm.contrib.flask import ElasticAPM
+from flask import Flask, request, jsonify
+# Initialize flask app for the example
+app = Flask(__name__)
+
+app.config["ELASTIC_APM"] = {
+    "SERVICE_NAME": "apm_system",
+    "SECRET_TOKEN": "nIncXi7cSf8e43lvV4SE",
+    "SERVER_URL": "http://apm-server:8200",
+    "DEBUG": True,
+    "CAPTURE_BODY": True,
+}
+
+apm = ElasticAPM(app)
+
 
 class ElasticAPMMiddleware:
-    def __init__(self, app):
+    def __init__(self, app, apm):
         self.app = app
+        self.apm = apm
 
-    def __call__(self, environ, start_response):
-        def custom_start_response(status, headers, exc_info=None):
-            # Сохраняем информацию о запросе в транзакции
-            with elasticapm.capture_span('request', 'request'):
-                elasticapm.set_context({
-                    'request': {
-                        'method': request.method,
-                        'url': request.url,
-                        'body': request.data,
-                        'headers': dict(request.headers),
-                    }
-                })
+    def capture_request_body(self):
+        if self.app.config['ELASTIC_APM']['CAPTURE_BODY']:
+            if request.content_type == 'application/json':
+                request_body = request.get_json()
+                elasticapm.set_custom_context({"request_body": request_body})
 
-            response = self.app(environ, start_response)
-
-            # Сохраняем информацию о ответе в транзакции
-            with elasticapm.capture_span('response', 'response'):
-                elasticapm.set_context({
-                    'response': {
-                        'status_code': response.status_code,
-                        'headers': dict(response.headers),
-                    }
-                })
-
-            return response
-
-        return self.app(environ, custom_start_response)
-
-def init_app(app):
-    app.wsgi_app = ElasticAPMMiddleware(app.wsgi_app)
+    def capture_response_body(self, response):
+        if self.app.config['ELASTIC_APM']['CAPTURE_BODY']:
+            if response.content_type == 'application/json':
+                response_body = json.loads(response.data)
+                elasticapm.set_custom_context({"response_body": response_body})

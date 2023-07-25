@@ -1,4 +1,4 @@
-version: '3.2'
+version: "3.2"
 
 services:
   elasticsearch:
@@ -23,6 +23,25 @@ services:
       discovery.type: single-node
     networks:
       - elk
+
+  apm-server:
+      build:
+        context: apm-server/
+        args:
+          ELK_VERSION: $ELK_VERSION
+      command:
+        - --strict.perms=false
+      volumes:
+        - type: bind
+          source: ./apm-server/config/apm-server.yml
+          target: /usr/share/apm-server/apm-server.yml
+          read_only: true
+      ports:
+        - "8200:8200"
+      networks:
+        - elk
+      depends_on:
+        - elasticsearch
 
   logstash:
     build:
@@ -92,15 +111,12 @@ services:
     restart: unless-stopped
     ports:
       - 5432:5432
-    environment:
-      POSTGRES_USER: postgres_user
-      POSTGRES_PASSWORD: postgres_password
-      POSTGRES_DB: postgres_db
+    env_file:
+      - .env
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - elk
-
 
 networks:
   elk:
