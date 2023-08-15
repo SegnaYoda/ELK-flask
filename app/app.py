@@ -1,6 +1,7 @@
 import os
-
-from flask import Flask, request, jsonify
+import logging
+from logging.handlers import RotatingFileHandler
+from flask import request, jsonify
 from dotenv import load_dotenv
 
 from flask.wrappers import Request
@@ -51,8 +52,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
-
-
 
 
 
@@ -119,7 +118,8 @@ def login():
         return (jsonify(ret), 401)
 
   
-@app.route("/api/refresh", methods=["POST"])
+@app.get("/api/refresh")
+@flask_praetorian.auth_required
 def refresh():
     """
     Refreshes an existing JWT by creating a new one that is a copy of the old
@@ -129,7 +129,7 @@ def refresh():
          -H "Authorization: Bearer <your_token>"
     """
     app.logger.warning("refresh request")
-    old_token = Request.get_data()
+    old_token = guard.read_token_from_header()
     new_token = guard.refresh_jwt_token(old_token)
     ret = {"access_token": new_token}
     return ret, 200
@@ -259,6 +259,10 @@ def reset_finalize():
 
 
 if __name__ == "__main__":
+    handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=3)        
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    logger.addHandler(handler)
     db.create_all()
     app.debug = True
     app.run(threaded=True)

@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 app.config["ELASTIC_APM"] = {
     "SERVICE_NAME": "apm_system",
-    "SECRET_TOKEN": "nIncXi7cSf8e43lvV4SE",
+    "SECRET_TOKEN": "7WEBpjcgRNleDWX4UPtH",
     "SERVER_URL": "http://apm-server:8200",
     "DEBUG": True,
     "CAPTURE_BODY": True,

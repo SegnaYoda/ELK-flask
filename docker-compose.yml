@@ -69,6 +69,19 @@ services:
     depends_on:
       - elasticsearch
 
+  # beats:
+  #   image: elastic/filebeat:7.16.2
+  #   volumes:
+  #     - type: bind
+  #       source: ./filebeat/config/filebeat.yml
+  #       target: /usr/share/filebeat/config/filebeat.yml
+  #       read_only: true
+  #     - ./flask/:/flask/app.log/:ro
+  #   networks:
+  #     - elk
+  #   depends_on:
+  #     - elasticsearch
+
   kibana:
     build:
       context: kibana/
@@ -124,4 +137,8 @@ networks:
 
 volumes:
   elasticsearch:
+  kibana:
+  logstash:
+  apm-server:
+  server-web:
   postgres-data:

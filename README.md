@@ -16,6 +16,35 @@
 
 `docker-compose down -v`
 
+**Initialize passwords for built-in users**
+
+```python
+docker-compose exec -T elasticsearch bin/elasticsearch-setup-passwords auto --batch
+```
+
+Passwords for all 6 built-in users will be randomly generated. Take note of them.
+
+Unset the bootstrap password (optional)
+
+Remove the ELASTIC_PASSWORD environment variable from the elasticsearch service inside the Compose file (docker-compose.yml). It is only used to initialize the keystore during the initial startup of Elasticsearch.
+
+Replace usernames and passwords in configuration files
+
+Use the kibana_system user (kibana for releases <7.8.0) inside the Kibana configuration file (kibana/config/kibana.yml) and the logstash_system user inside the Logstash configuration file (logstash/config/logstash.yml) in place of the existing elastic user.
+
+Replace the password for the elastic user inside the Logstash pipeline file (logstash/pipeline/logstash.conf).
+
+ℹ️ Do not use the logstash_system user inside the Logstash pipeline file, it does not have sufficient permissions to create indices. Follow the instructions at Configuring Security in Logstash to create a user with suitable roles.
+
+See also the Configuration section below.
+
+Restart Kibana and Logstash to apply changes
+
+```python
+docker-compose restart kibana logstash apm-server
+```
+
+
 # JWT Login Flask
 
 This is a Flask API JWT based login authentication. 
