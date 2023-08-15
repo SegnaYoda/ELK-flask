@@ -44,9 +44,9 @@ secret_management.encryption_keys: [my_first_encryption_key, my_second_encryptio
 > key=<generated AES key>
 > ```
 
-### Enable Elasticsearch's API key service
+### Enable Elasticsearch"s API key service
 
-Enterprise Search requires Elasticsearch's built-in [API key service][es-security] to be enabled in order to start.
+Enterprise Search requires Elasticsearch"s built-in [API key service][es-security] to be enabled in order to start.
 Unless Elasticsearch is configured to enable TLS on the HTTP interface (disabled by default), this service is disabled
 by default.
 
@@ -106,7 +106,7 @@ enterprise-search:
 
   environment:
     ent_search.auth.source: standard
-    worker.threads: '6'
+    worker.threads: "6"
 ```
 
 Any change to the Enterprise Search configuration requires a restart of the Enterprise Search container:

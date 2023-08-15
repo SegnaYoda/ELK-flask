@@ -1,4 +1,4 @@
-version: '3.2'
+version: "3.2"
 
 services:
   elasticsearch:
@@ -19,9 +19,29 @@ services:
       - "9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xmx1G -Xms1G"
+      ELASTIC_PASSWORD: elasticpassword
       discovery.type: single-node
     networks:
       - elk
+
+  apm-server:
+      build:
+        context: apm-server/
+        args:
+          ELK_VERSION: $ELK_VERSION
+      command:
+        - --strict.perms=false
+      volumes:
+        - type: bind
+          source: ./apm-server/config/apm-server.yml
+          target: /usr/share/apm-server/apm-server.yml
+          read_only: true
+      ports:
+        - "8200:8200"
+      networks:
+        - elk
+      depends_on:
+        - elasticsearch
 
   logstash:
     build:
@@ -48,6 +68,19 @@ services:
       - elk
     depends_on:
       - elasticsearch
+
+  # beats:
+  #   image: elastic/filebeat:7.16.2
+  #   volumes:
+  #     - type: bind
+  #       source: ./filebeat/config/filebeat.yml
+  #       target: /usr/share/filebeat/config/filebeat.yml
+  #       read_only: true
+  #     - ./flask/:/flask/app.log/:ro
+  #   networks:
+  #     - elk
+  #   depends_on:
+  #     - elasticsearch
 
   kibana:
     build:
@@ -91,15 +124,12 @@ services:
     restart: unless-stopped
     ports:
       - 5432:5432
-    environment:
-      POSTGRES_USER: postgres_user
-      POSTGRES_PASSWORD: postgres_password
-      POSTGRES_DB: postgres_db
+    env_file:
+      - .env
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - elk
-
 
 networks:
   elk:
@@ -107,4 +137,8 @@ networks:
 
 volumes:
   elasticsearch:
+  kibana:
+  logstash:
+  apm-server:
+  server-web:
   postgres-data:

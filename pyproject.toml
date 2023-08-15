@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "elk-stack"
+version = "0.1"
+description = "Pet project Ylab"
+authors = ["s.iodo <s.iodo@ylab.io>"]
+readme = "README.md"
+packages = [{include = "elk_stack"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+flask = "^2.3.2"
+flask-sqlalchemy = "^3.0.3"
+psycopg2 = "^2.9.6"
+flask-praetorian = "^1.4.0"
+flask-mail = "^0.9.1"
+python-dotenv = "^1.0.0"
+flask-cors = "^4.0.0"
+flask-migrate = "^4.0.4"
+elastic-apm = {extras = ["flask"], version = "^6.17.0"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
