@@ -21,3 +21,6 @@ down: ## stop docker dev environment
 
 purge: ## stop docker dev environment and remove orphans and volumes
 	${DCF_LOCAL} down --volumes --remove-orphans
+
+exec-app:
+	${DCF_LOCAL} exec flask bash

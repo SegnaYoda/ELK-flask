@@ -6,19 +6,19 @@ db = SQLAlchemy()
 # A generic user model that might be used by an app powered by flask-praetorian
 class User(db.Model):
     
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.Text, unique=True, nullable=False)
     email = db.Column(db.Text, unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
     roles = db.Column(db.Text)
-    is_active = db.Column(db.Boolean, default=False, server_default='true')
+    is_active = db.Column(db.Boolean, default=False, server_default="true")
 
     @property
     def rolenames(self):
         try:
-            return self.roles.split(',')
+            return self.roles.split(",")
         except Exception:
             return []
 
